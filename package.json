@@ -21,10 +21,14 @@
     "@types/recompose": "^0.26.1",
     "@types/sinon": "^5.0.1",
     "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "husky": "^0.14.3",
     "jest": "^23.1.0",
     "lint-staged": "^7.1.3",
     "prettier": "^1.13.4",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
+    "recompose": "^0.27.1",
     "sinon": "^5.1.0",
     "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",
@@ -33,7 +37,8 @@
   },
   "jest": {
     "moduleFileExtensions": [
-      "tsx"
+      "tsx",
+      "js"
     ],
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
@@ -44,8 +49,9 @@
       }
     },
     "testMatch": [
-      "**/__tests__/*.+(ts|tsx)"
-    ]
+      "**/__tests__/*.tsx"
+    ],
+    "setupTestFrameworkScriptFile": "<rootDir>/src/__tests__/jest.setup.ts"
   },
   "prettier": {
     "printWidth": 100,

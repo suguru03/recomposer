@@ -28,14 +28,20 @@ export class Recomposer<
 
   enhance(Component: ComponentType<Props>): ComponentClass<OuterProps> {
     const { mapProps, withStateHandlers, onlyUpdateForKeys } = this.opts;
+    const opts: Function[] = [];
+    if (mapProps) {
+      opts.push(r.mapProps<InnerProps, OuterProps>(mapProps.propsMapper));
+    }
+    if (withStateHandlers) {
+      opts.push(
+        r.withStateHandlers<InnerState, InnerStateUpdaterMap, OuterProps>(
+          withStateHandlers.createProps,
+          withStateHandlers.stateUpdaters,
+        ),
+      );
+    }
     return r.compose<Props, OuterProps>(
-      mapProps ? r.mapProps<InnerProps, OuterProps>(mapProps.propsMapper) : noop,
-      withStateHandlers
-        ? r.withStateHandlers<InnerState, InnerStateUpdaterMap, OuterProps>(
-            withStateHandlers.createProps,
-            withStateHandlers.stateUpdaters,
-          )
-        : noop,
+      ...opts,
       onlyUpdateForKeys ? r.onlyUpdateForKeys(onlyUpdateForKeys) : r.pure,
     )(Component);
   }
