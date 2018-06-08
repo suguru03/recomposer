@@ -1,30 +1,32 @@
-import * as React from 'react';
+import { ComponentClass, ComponentType } from 'react';
 import * as r from 'recompose';
 
 const noop = () => {}; // tslint:disable-line:no-empty
+
+export type StateUpdaterMap<InnerState, UpdaterKey extends string> = Pick<r.StateHandlerMap<InnerState>, UpdaterKey>;
 
 export class Recomposer<
     OuterProps extends object = {},
     InnerProps extends object = OuterProps,
     InnerState extends object = InnerProps,
-    InnerStateUpdaters extends r.StateHandlerMap<InnerState> = {},
-    Props extends object = InnerProps & InnerState & InnerStateUpdaters
+    InnerStateUpdaterMap extends r.StateHandlerMap<InnerState> = {},
+    Props extends object = InnerProps & InnerState & InnerStateUpdaterMap
 > {
     private opts: {
         withStateHandlers?: {
             createProps: InnerState | r.mapper<OuterProps, InnerState>;
-            stateUpdaters: InnerStateUpdaters;
+            stateUpdaters: r.StateUpdaters<OuterProps, InnerState, InnerStateUpdaterMap>,
         };
         onlyUpdateForKeys?: Array<keyof Props>;
     } = {};
 
-    enhance(Component: React.ComponentType<Props>) {
+    enhance(Component: ComponentType<Props>): ComponentClass<OuterProps> {
         const { withStateHandlers, onlyUpdateForKeys } = this.opts;
-        return r.compose(
+        return r.compose<Props, OuterProps>(
             withStateHandlers
-                ? r.withStateHandlers<InnerState, InnerStateUpdaters, OuterProps>(
+                ? r.withStateHandlers<InnerState, InnerStateUpdaterMap, OuterProps>(
                       withStateHandlers.createProps,
-                      withStateHandlers.stateUpdaters ? withStateHandlers.stateUpdaters : ({} as any),
+                      withStateHandlers.stateUpdaters,
                   )
                 : noop,
             onlyUpdateForKeys ? r.onlyUpdateForKeys(onlyUpdateForKeys) : r.pure,
@@ -33,7 +35,7 @@ export class Recomposer<
 
     withStateHanlders(
         createProps: InnerState | r.mapper<OuterProps, InnerState>,
-        stateUpdaters: InnerStateUpdaters,
+        stateUpdaters: r.StateUpdaters<OuterProps, InnerState, InnerStateUpdaterMap>,
     ): this {
         this.opts.withStateHandlers = { createProps, stateUpdaters };
         return this;
