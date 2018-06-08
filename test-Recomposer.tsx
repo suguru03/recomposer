@@ -2,25 +2,27 @@ import * as React from 'react';
 import { Recomposer, StateUpdaterMap } from './Recomposer';
 
 interface OuterProps {
-    value: string;
+  value: string;
 }
 
 interface InnerProps {
-    value: string;
+  value: string;
 }
 
 interface InnerState {
-    open: boolean;
+  open: boolean;
 }
 
 type InnerStateUpdaterMap = StateUpdaterMap<InnerState, 'onClick'>;
 
-const initState = ({ value}: OuterProps) => ({ open: !!value });
+const initState = ({ value }: OuterProps) => ({ open: !!value });
 const stateUpdaterMap = {
-    onClick: ({ open }: InnerState) => () => ({})
+  onClick: ({ open }: InnerState) => () => ({}),
 };
 
-const Component = ({ value, open, onClick }: InnerProps & InnerState & InnerStateUpdaterMap) => (<input value={value} onClick={onClick}/>);
+const Component = ({ value, open, onClick }: InnerProps & InnerState & InnerStateUpdaterMap) => (
+  <input value={value} onClick={onClick} />
+);
 
 new Recomposer<OuterProps, InnerProps, InnerState, InnerStateUpdaterMap>()
   .withStateHanlders(initState, stateUpdaterMap)
