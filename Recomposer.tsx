@@ -44,3 +44,5 @@ export class Recomposer<
         return this;
     }
 }
+
+export default Recomposer;

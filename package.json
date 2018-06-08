@@ -1,10 +1,13 @@
 {
   "name": "recomposer",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "dist/Recomposer.js",
   "repository": "git@github.com:suguru03/recomposer.git",
   "author": "Suguru Motegi <suguru.motegi@gmail.com>",
   "license": "MIT",
+  "scripts": {
+      "build": "tsc"
+  },
   "dependencies": {
     "react": "^16.4.0",
     "recompose": "^0.27.1"
