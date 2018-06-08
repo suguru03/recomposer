@@ -45,7 +45,7 @@ export class Recomposer<
     return this;
   }
 
-  withStateHanlders(
+  withStateHandlers(
     createProps: InnerState | r.mapper<OuterProps, InnerState>,
     stateUpdaters: r.StateUpdaters<OuterProps, InnerState, InnerStateUpdaterMap>,
   ): this {

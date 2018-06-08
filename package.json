@@ -6,22 +6,46 @@
   "author": "Suguru Motegi <suguru.motegi@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "jest",
     "precommit": "lint-staged"
   },
-  "dependencies": {
+  "peerDependencies": {
     "react": "^16.4.0",
     "recompose": "^0.27.1"
   },
   "devDependencies": {
+    "@types/enzyme": "^3.1.10",
+    "@types/jest": "^23.0.0",
     "@types/react": "^16.3.17",
     "@types/recompose": "^0.26.1",
+    "@types/sinon": "^5.0.1",
+    "enzyme": "^3.3.0",
     "husky": "^0.14.3",
+    "jest": "^23.1.0",
     "lint-staged": "^7.1.3",
     "prettier": "^1.13.4",
+    "sinon": "^5.1.0",
+    "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",
     "tslint-react": "^3.6.0",
     "typescript": "^2.9.1"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "tsx"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "**/__tests__/*.+(ts|tsx)"
+    ]
   },
   "prettier": {
     "printWidth": 100,
