@@ -1,6 +1,6 @@
 {
   "name": "recomposer",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "repository": "git@github.com:suguru03/recomposer.git",
   "author": "Suguru Motegi <suguru.motegi@gmail.com>",
