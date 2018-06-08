@@ -16,6 +16,9 @@ export class Recomposer<
   Props extends object = InnerProps & InnerState & InnerStateUpdaterMap
 > {
   private opts: {
+    mapProps?: {
+      propsMapper: r.mapper<OuterProps, InnerProps>;
+    };
     withStateHandlers?: {
       createProps: InnerState | r.mapper<OuterProps, InnerState>;
       stateUpdaters: r.StateUpdaters<OuterProps, InnerState, InnerStateUpdaterMap>;
@@ -24,8 +27,9 @@ export class Recomposer<
   } = {};
 
   enhance(Component: ComponentType<Props>): ComponentClass<OuterProps> {
-    const { withStateHandlers, onlyUpdateForKeys } = this.opts;
+    const { mapProps, withStateHandlers, onlyUpdateForKeys } = this.opts;
     return r.compose<Props, OuterProps>(
+      mapProps ? r.mapProps<InnerProps, OuterProps>(mapProps.propsMapper) : noop,
       withStateHandlers
         ? r.withStateHandlers<InnerState, InnerStateUpdaterMap, OuterProps>(
             withStateHandlers.createProps,
@@ -36,6 +40,11 @@ export class Recomposer<
     )(Component);
   }
 
+  mapProps(propsMapper: r.mapper<OuterProps, InnerProps>): this {
+    this.opts.mapProps = { propsMapper };
+    return this;
+  }
+
   withStateHanlders(
     createProps: InnerState | r.mapper<OuterProps, InnerState>,
     stateUpdaters: r.StateUpdaters<OuterProps, InnerState, InnerStateUpdaterMap>,
@@ -44,8 +53,12 @@ export class Recomposer<
     return this;
   }
 
-  onlyUpdateForKeys(keys: Array<keyof Props>) {
+  onlyUpdateForKeys(keys: Array<keyof Props>): this {
     this.opts.onlyUpdateForKeys = keys;
+    return this;
+  }
+
+  pure(): this {
     return this;
   }
 }
