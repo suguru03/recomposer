@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { mount } from 'enzyme';
-// import * as sinon from 'sinon';
 
 import { Recomposer, StateUpdaterMap } from '../Recomposer';
 
+/**
+ * @see https://github.com/acdlite/recompose/blob/master/src/packages/recompose/__tests__/withStateHandlers-test.js
+ */
 test('withStateHandlers should persist events passed as argument', () => {
   interface OuterProps {}
   type InnerProps = OuterProps;
@@ -19,15 +21,17 @@ test('withStateHandlers should persist events passed as argument', () => {
       <p>{value}</p>
     </div>
   );
-  const InputComponent = new Recomposer<OuterProps, InnerProps, InnerState, InnerStateUpdaterMap>()
-    .withStateHandlers(
-      { value: '' },
-      {
-        onChange: () => e => ({
-          value: e.target.value,
-        }),
-      },
-    )
+  const initState = { value: '' };
+  const stateUpdaterMap = {
+    onChange: () => e => ({
+      value: e.target.value,
+    }),
+  };
+  let InputComponent = new Recomposer<OuterProps, InnerProps, InnerState, InnerStateUpdaterMap>()
+    .withStateHandlers(initState, stateUpdaterMap)
+    .enhance(Component);
+  InputComponent = new Recomposer()
+    .withStateHandlers<InnerState, InnerStateUpdaterMap>(initState, stateUpdaterMap)
     .enhance(Component);
 
   const wrapper = mount(<InputComponent />);

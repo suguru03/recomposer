@@ -1,10 +1,18 @@
 import { ComponentClass, ComponentType } from 'react';
-import * as r from 'recompose';
-
-const noop = () => {}; // tslint:disable-line:no-empty
+import {
+  compose,
+  mapProps,
+  withState,
+  withStateHandlers,
+  onlyUpdateForKeys,
+  pure,
+  mapper,
+  StateHandlerMap,
+  StateUpdaters,
+} from 'recompose';
 
 export type StateUpdaterMap<InnerState, UpdaterKey extends string> = Pick<
-  r.StateHandlerMap<InnerState>,
+  StateHandlerMap<InnerState>,
   UpdaterKey
 >;
 
@@ -12,60 +20,60 @@ export class Recomposer<
   OuterProps extends object = {},
   InnerProps extends object = OuterProps,
   InnerState extends object = InnerProps,
-  InnerStateUpdaterMap extends r.StateHandlerMap<InnerState> = {},
-  Props extends object = InnerProps & InnerState & InnerStateUpdaterMap
+  InnerStateUpdaterMap extends StateHandlerMap<InnerState> = {},
+  ActualOuterProps extends object = OuterProps,
+  ActualInnerProps extends object = InnerProps & InnerState & InnerStateUpdaterMap
 > {
-  private opts: {
-    mapProps?: {
-      propsMapper: r.mapper<OuterProps, InnerProps>;
-    };
-    withStateHandlers?: {
-      createProps: InnerState | r.mapper<OuterProps, InnerState>;
-      stateUpdaters: r.StateUpdaters<OuterProps, InnerState, InnerStateUpdaterMap>;
-    };
-    onlyUpdateForKeys?: Array<keyof Props>;
-  } = {};
-
-  enhance(Component: ComponentType<Props>): ComponentClass<OuterProps> {
-    const { mapProps, withStateHandlers, onlyUpdateForKeys } = this.opts;
-    const opts: Function[] = [];
-    if (mapProps) {
-      opts.push(r.mapProps<InnerProps, OuterProps>(mapProps.propsMapper));
-    }
-    if (withStateHandlers) {
-      opts.push(
-        r.withStateHandlers<InnerState, InnerStateUpdaterMap, OuterProps>(
-          withStateHandlers.createProps,
-          withStateHandlers.stateUpdaters,
-        ),
-      );
-    }
-    return r.compose<Props, OuterProps>(
-      ...opts,
-      onlyUpdateForKeys ? r.onlyUpdateForKeys(onlyUpdateForKeys) : r.pure,
-    )(Component);
+  private opts: Function[];
+  constructor(opts: Function[] = []) {
+    this.opts = opts;
   }
 
-  mapProps(propsMapper: r.mapper<OuterProps, InnerProps>): this {
-    this.opts.mapProps = { propsMapper };
-    return this;
+  enhance(Component: ComponentType<ActualInnerProps>): ComponentClass<ActualOuterProps> {
+    return compose<ActualInnerProps, ActualOuterProps>(...this.opts)(Component);
   }
 
-  withStateHandlers(
-    createProps: InnerState | r.mapper<OuterProps, InnerState>,
-    stateUpdaters: r.StateUpdaters<OuterProps, InnerState, InnerStateUpdaterMap>,
-  ): this {
-    this.opts.withStateHandlers = { createProps, stateUpdaters };
-    return this;
+  mapProps<IP extends InnerProps = InnerProps>(propsMapper: mapper<OuterProps, IP>): Recomposer {
+    return new Recomposer<OuterProps, IP, InnerState, InnerStateUpdaterMap, ActualOuterProps>([
+      ...this.opts,
+      mapProps<IP, OuterProps>(propsMapper),
+    ]);
   }
 
-  onlyUpdateForKeys(keys: Array<keyof Props>): this {
-    this.opts.onlyUpdateForKeys = keys;
-    return this;
+  withState<
+    IS extends InnerState = InnerState,
+    ISU extends StateHandlerMap<IS> = StateHandlerMap<IS>
+  >(
+    stateName: Extract<keyof IS, string>,
+    stateUpdaterName: Extract<keyof ISU, string>,
+    initialState: IS[keyof IS] | mapper<OuterProps, IS[keyof IS]>,
+  ) {
+    return new Recomposer<OuterProps & IS & ISU, InnerProps, IS, ISU, ActualOuterProps>([
+      ...this.opts,
+      withState<OuterProps, IS[keyof IS], Extract<keyof IS, string>, Extract<keyof ISU, string>>(
+        stateName,
+        stateUpdaterName,
+        initialState,
+      ),
+    ]);
   }
 
-  pure(): this {
-    return this;
+  withStateHandlers<
+    IS extends InnerState = InnerState,
+    ISU extends StateHandlerMap<IS> = StateHandlerMap<IS>
+  >(createProps: IS | mapper<OuterProps, IS>, stateUpdaters: StateUpdaters<OuterProps, IS, ISU>) {
+    return new Recomposer<OuterProps & IS & ISU, InnerProps, IS, ISU, ActualOuterProps>([
+      ...this.opts,
+      withStateHandlers<IS, ISU, OuterProps>(createProps, stateUpdaters),
+    ]);
+  }
+
+  onlyUpdateForKeys(keys: Array<keyof ActualInnerProps>): Recomposer {
+    return new Recomposer([...this.opts, onlyUpdateForKeys(keys)]);
+  }
+
+  pure(): Recomposer {
+    return new Recomposer([...this.opts, pure]);
   }
 }
 
