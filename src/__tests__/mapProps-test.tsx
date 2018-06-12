@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import * as sinon from 'sinon';
 
-import { Recomposer, StateUpdaterMap } from '../Recomposer';
+import { Recomposer } from '../Recomposer';
 
 /**
  * @see https://github.com/acdlite/recompose/blob/master/src/packages/recompose/__tests__/mapProps-test.js
@@ -14,13 +14,12 @@ test('mapProps maps owner props to child props', () => {
   interface InnerState {
     strings: string[];
   }
-  type InnerStateUpdaterMap = StateUpdaterMap<InnerState, 'updateStrings'>;
-  type Props = InnerProps & InnerState & InnerStateUpdaterMap;
+  type Props = InnerProps & InnerState;
 
   // type test
   const Component = ({ str }: Props) => (str ? null : null);
   new Recomposer()
-    .withState<InnerState, InnerStateUpdaterMap>('strings', 'updateStrings', ['do', 're', 'mi'])
+    .withState('strings', 'updateStrings', ['do', 're', 'mi'])
     .mapProps(({ strings, ...rest }) => ({
       ...rest,
       str: strings.join(''),
@@ -31,7 +30,7 @@ test('mapProps maps owner props to child props', () => {
   component.displayName = 'component';
 
   const StringConcat = new Recomposer()
-    .withState<InnerState, InnerStateUpdaterMap>('strings', 'updateStrings', ['do', 're', 'mi'])
+    .withState('strings', 'updateStrings', ['do', 're', 'mi'])
     .mapProps(({ strings, ...rest }) => ({
       ...rest,
       str: strings.join(''),

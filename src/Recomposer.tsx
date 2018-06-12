@@ -18,6 +18,7 @@ import {
 
 export { StateHandler };
 
+export type StateUpdater<TState> = (state: TState) => TState;
 export type StateUpdaterMap<InnerState, UpdaterKey extends string> = Pick<
   StateHandlerMap<InnerState>,
   UpdaterKey
@@ -35,7 +36,7 @@ export type PropsHandlerMap<OuterProps, HandlerKey extends string = string> = Re
 export class Recomposer<
   OuterProps extends object = {},
   InnerProps extends object = OuterProps,
-  InnerState extends object = InnerProps,
+  InnerState extends object = {},
   InnerPropsHanderMap extends PropsHandlerMap<OuterProps> = {},
   InnerStateUpdaterMap extends StateHandlerMap<InnerState> = {},
   ActualOuterProps extends object = OuterProps,
@@ -77,30 +78,24 @@ export class Recomposer<
     >([...this.opts, withProps<IP, OuterProps>(propsMapper)]);
   }
 
-  withState<
-    IS extends InnerState = InnerState,
-    ISU extends StateHandlerMap<IS> &
-      StateUpdaterMap<InnerState, Extract<keyof InnerStateUpdaterMap, string>> = StateUpdaterMap<
-      IS,
-      Extract<keyof InnerStateUpdaterMap, string>
-    >
-  >(
-    stateName: keyof IS,
-    stateUpdaterName: keyof ISU,
-    initialState: IS[keyof IS] | mapper<OuterProps, IS[keyof IS]>,
+  withState<TState, TStateName extends string, TStateUpdaterName extends string>(
+    stateName: TStateName,
+    stateUpdaterName: TStateUpdaterName,
+    initialState: TState | mapper<OuterProps, TState>,
   ) {
     return new Recomposer<
-      OuterProps & IS & ISU,
+      OuterProps & Record<TStateName, TState> & Record<TStateUpdaterName, StateUpdater<TState>>,
       InnerProps,
-      IS,
+      InnerState & Record<TStateName, TState>,
       InnerPropsHanderMap,
-      ISU,
+      StateHandlerMap<InnerState & Record<TStateName, TState>> &
+        Record<TStateUpdaterName, StateUpdater<TState>>,
       ActualOuterProps
     >([
       ...this.opts,
-      withState<OuterProps, IS[keyof IS], string, string>(
-        stateName as string,
-        stateUpdaterName as string,
+      withState<OuterProps, TState, TStateName, TStateUpdaterName>(
+        stateName,
+        stateUpdaterName,
         initialState,
       ),
     ]);

@@ -2,20 +2,16 @@ import * as React from 'react';
 import { mount } from 'enzyme';
 import * as sinon from 'sinon';
 
-import { Recomposer, StateUpdaterMap } from '../Recomposer';
+import { Recomposer } from '../Recomposer';
 
 /**
  * @see https://github.com/acdlite/recompose/blob/master/src/packages/recompose/__tests__/withHandlers-test.js
  */
 test('withHandlers passes handlers to base component', () => {
-  interface InnerState {
-    value: string;
-  }
-  type InnserStateMap = StateUpdaterMap<InnerState, 'updateValue'>;
   let submittedFormValue;
   const enhanceForm = new Recomposer()
     // TODO: can not resolve types automatically
-    .withState<InnerState, InnserStateMap>('value', 'updateValue', '')
+    .withState('value', 'updateValue', '')
     .withHandlers({
       onChange: props => event => {
         props.updateValue(event.target.value);
