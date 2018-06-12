@@ -7,13 +7,11 @@ import { Recomposer, StateUpdaterMap } from '../Recomposer';
  * @see https://github.com/acdlite/recompose/blob/master/src/packages/recompose/__tests__/withStateHandlers-test.js
  */
 test('withStateHandlers should persist events passed as argument', () => {
-  interface OuterProps {}
-  type InnerProps = OuterProps;
   interface InnerState {
     readonly value: string;
   }
   type InnerStateUpdaterMap = StateUpdaterMap<InnerState, 'onChange'>;
-  type Props = InnerProps & InnerState & InnerStateUpdaterMap;
+  type Props = InnerState & InnerStateUpdaterMap;
 
   const Component = ({ value, onChange }: Props) => (
     <div>
@@ -27,10 +25,7 @@ test('withStateHandlers should persist events passed as argument', () => {
       value: e.target.value,
     }),
   };
-  let InputComponent = new Recomposer<OuterProps, InnerProps, InnerState, InnerStateUpdaterMap>()
-    .withStateHandlers(initState, stateUpdaterMap)
-    .enhance(Component);
-  InputComponent = new Recomposer()
+  const InputComponent = new Recomposer()
     .withStateHandlers<InnerState, InnerStateUpdaterMap>(initState, stateUpdaterMap)
     .enhance(Component);
 

@@ -8,7 +8,6 @@ import { Recomposer, StateUpdaterMap } from '../Recomposer';
  * @see https://github.com/acdlite/recompose/blob/master/src/packages/recompose/__tests__/mapProps-test.js
  */
 test('mapProps maps owner props to child props', () => {
-  interface OuterProps {}
   interface InnerProps {
     str: string;
   }
@@ -20,13 +19,6 @@ test('mapProps maps owner props to child props', () => {
 
   // type test
   const Component = ({ str }: Props) => (str ? null : null);
-  new Recomposer<OuterProps, InnerProps, InnerState, InnerStateUpdaterMap>()
-    .withState('strings', 'updateStrings', ['do', 're', 'mi'])
-    .mapProps(({ strings, ...rest }) => ({
-      ...rest,
-      str: strings.join(''),
-    }))
-    .enhance(Component);
   new Recomposer()
     .withState<InnerState, InnerStateUpdaterMap>('strings', 'updateStrings', ['do', 're', 'mi'])
     .mapProps(({ strings, ...rest }) => ({
