@@ -1,6 +1,6 @@
 {
   "name": "recomposer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "build/Recomposer.js",
   "types": "build/Recomposer.d.ts",
   "repository": "git@github.com:suguru03/recomposer.git",
