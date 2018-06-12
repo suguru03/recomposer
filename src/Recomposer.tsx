@@ -9,6 +9,7 @@ import {
   mapper,
   StateHandlerMap,
   StateUpdaters,
+  withProps,
 } from 'recompose';
 
 export type StateUpdaterMap<InnerState, UpdaterKey extends string> = Pick<
@@ -33,10 +34,19 @@ export class Recomposer<
     return compose<ActualInnerProps, ActualOuterProps>(...this.opts)(Component);
   }
 
-  mapProps<IP extends InnerProps = InnerProps>(propsMapper: mapper<OuterProps, IP>): Recomposer {
+  mapProps<IP extends InnerProps = InnerProps>(propsMapper: mapper<OuterProps, IP>) {
     return new Recomposer<OuterProps, IP, InnerState, InnerStateUpdaterMap, ActualOuterProps>([
       ...this.opts,
       mapProps<IP, OuterProps>(propsMapper),
+    ]);
+  }
+
+  withProps<IP extends InnerProps & OuterProps = InnerProps & OuterProps>(
+    propsMapper: IP | mapper<OuterProps, IP>,
+  ) {
+    return new Recomposer<IP, IP, InnerState, InnerStateUpdaterMap, ActualOuterProps>([
+      ...this.opts,
+      withProps<IP, OuterProps>(propsMapper),
     ]);
   }
 
@@ -72,11 +82,11 @@ export class Recomposer<
     ]);
   }
 
-  onlyUpdateForKeys(keys: Array<keyof ActualInnerProps>): Recomposer {
+  onlyUpdateForKeys(keys: Array<keyof ActualInnerProps>) {
     return new Recomposer([...this.opts, onlyUpdateForKeys(keys)]);
   }
 
-  pure(): Recomposer {
+  pure() {
     return new Recomposer([...this.opts, pure]);
   }
 }
