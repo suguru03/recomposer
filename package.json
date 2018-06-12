@@ -7,7 +7,7 @@
   "author": "Suguru Motegi <suguru.motegi@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "rm -rf build && tsc -p tsconfig.build.json",
     "test": "jest",
     "precommit": "lint-staged"
   },
