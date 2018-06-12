@@ -54,7 +54,7 @@ export class Recomposer<
     return compose<ActualInnerProps, ActualOuterProps>(...this.opts)(Component);
   }
 
-  mapProps<IP extends InnerProps = InnerProps>(propsMapper: mapper<OuterProps, IP>) {
+  mapProps<IP extends object = InnerProps>(propsMapper: mapper<OuterProps, IP>) {
     return new Recomposer<
       OuterProps,
       IP,
@@ -133,11 +133,25 @@ export class Recomposer<
   }
 
   onlyUpdateForKeys(keys: Array<keyof ActualInnerProps>) {
-    return new Recomposer([...this.opts, onlyUpdateForKeys(keys)]);
+    return new Recomposer<
+      OuterProps,
+      InnerProps,
+      InnerState,
+      InnerPropsHanderMap,
+      InnerStateUpdaterMap,
+      ActualOuterProps
+    >([...this.opts, onlyUpdateForKeys(keys)]);
   }
 
   pure() {
-    return new Recomposer([...this.opts, pure]);
+    return new Recomposer<
+      OuterProps,
+      InnerProps,
+      InnerState,
+      InnerPropsHanderMap,
+      InnerStateUpdaterMap,
+      ActualOuterProps
+    >([...this.opts, pure]);
   }
 }
 
