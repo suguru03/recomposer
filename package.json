@@ -1,7 +1,8 @@
 {
   "name": "recomposer",
   "version": "0.1.0",
-  "main": "dist/Recomposer.js",
+  "main": "build/Recomposer.js",
+  "types": "build/Recomposer.d.ts",
   "repository": "git@github.com:suguru03/recomposer.git",
   "author": "Suguru Motegi <suguru.motegi@gmail.com>",
   "license": "MIT",
