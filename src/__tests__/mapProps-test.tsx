@@ -20,17 +20,19 @@ test('mapProps maps owner props to child props', () => {
 
   // type test
   const Component = ({ str }: Props) => (str ? null : null);
-  const mapProps = ({ strings, ...rest }) => ({
-    ...rest,
-    str: strings.join(''),
-  });
   new Recomposer<OuterProps, InnerProps, InnerState, InnerStateUpdaterMap>()
     .withState('strings', 'updateStrings', ['do', 're', 'mi'])
-    .mapProps(mapProps)
+    .mapProps(({ strings, ...rest }) => ({
+      ...rest,
+      str: strings.join(''),
+    }))
     .enhance(Component);
   new Recomposer()
     .withState<InnerState, InnerStateUpdaterMap>('strings', 'updateStrings', ['do', 're', 'mi'])
-    .mapProps<InnerProps>(mapProps)
+    .mapProps(({ strings, ...rest }) => ({
+      ...rest,
+      str: strings.join(''),
+    }))
     .enhance(Component);
 
   const component: any = sinon.spy(Component);
@@ -38,7 +40,10 @@ test('mapProps maps owner props to child props', () => {
 
   const StringConcat = new Recomposer()
     .withState<InnerState, InnerStateUpdaterMap>('strings', 'updateStrings', ['do', 're', 'mi'])
-    .mapProps<InnerProps>(mapProps)
+    .mapProps(({ strings, ...rest }) => ({
+      ...rest,
+      str: strings.join(''),
+    }))
     .enhance(component);
 
   expect(StringConcat.displayName).toBe('withState(mapProps(component))');

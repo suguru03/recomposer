@@ -8,6 +8,7 @@
     "jsx": "react",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
+    "noEmit": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,

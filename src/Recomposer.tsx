@@ -42,7 +42,11 @@ export class Recomposer<
 
   withState<
     IS extends InnerState = InnerState,
-    ISU extends StateHandlerMap<IS> = StateHandlerMap<IS>
+    ISU extends StateHandlerMap<IS> &
+      StateUpdaterMap<InnerState, Extract<keyof InnerStateUpdaterMap, string>> = StateUpdaterMap<
+      IS,
+      Extract<keyof InnerStateUpdaterMap, string>
+    >
   >(
     stateName: Extract<keyof IS, string>,
     stateUpdaterName: Extract<keyof ISU, string>,
