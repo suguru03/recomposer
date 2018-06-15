@@ -3,12 +3,14 @@ import {
   compose,
   mapProps,
   withProps,
+  withPropsOnChange,
   withState,
   withHandlers,
   withStateHandlers,
   onlyUpdateForKeys,
   pure,
   mapper,
+  predicateDiff,
   StateHandler,
   StateHandlerMap,
   StateUpdaters,
@@ -37,7 +39,7 @@ export class Recomposer<
   OuterProps extends object = {},
   InnerProps extends object = OuterProps,
   InnerState extends object = {},
-  InnerPropsHanderMap extends PropsHandlerMap<OuterProps> = {},
+  InnerPropsHanderMap extends PropsHandlerMap<InnerProps> = {},
   InnerStateUpdaterMap extends StateHandlerMap<InnerState> = {},
   ActualOuterProps extends object = OuterProps,
   ActualInnerProps extends object = InnerProps &
@@ -59,23 +61,37 @@ export class Recomposer<
       OuterProps,
       IP,
       InnerState,
-      InnerPropsHanderMap,
+      PropsHandlerMap<IP>,
       InnerStateUpdaterMap,
       ActualOuterProps
     >([...this.opts, mapProps<IP, OuterProps>(propsMapper)]);
   }
 
-  withProps<IP extends InnerProps & OuterProps = InnerProps & OuterProps>(
-    propsMapper: IP | mapper<OuterProps, IP>,
+  withProps<IP extends object = InnerProps>(propsMapper: IP | mapper<OuterProps, IP>) {
+    return new Recomposer<
+      IP,
+      IP,
+      InnerState,
+      PropsHandlerMap<IP>,
+      InnerStateUpdaterMap,
+      ActualOuterProps
+    >([...this.opts, withProps<IP, OuterProps>(propsMapper)]);
+  }
+
+  withPropsOnChange<IP extends object = InnerProps>(
+    shouldMapOrKeys:
+      | Array<Extract<keyof ActualOuterProps, string>>
+      | predicateDiff<ActualOuterProps>,
+    propsMapper: mapper<ActualOuterProps, IP>,
   ) {
     return new Recomposer<
       IP,
       IP,
       InnerState,
-      InnerPropsHanderMap,
+      PropsHandlerMap<IP>,
       InnerStateUpdaterMap,
       ActualOuterProps
-    >([...this.opts, withProps<IP, OuterProps>(propsMapper)]);
+    >([...this.opts, withPropsOnChange<IP, ActualOuterProps>(shouldMapOrKeys, propsMapper)]);
   }
 
   withState<TState, TStateName extends string, TStateUpdaterName extends string>(
