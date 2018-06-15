@@ -16,6 +16,7 @@ import {
   StateUpdaters,
   HandleCreators,
   HandleCreatorsFactory,
+  defaultProps,
 } from 'recompose';
 
 export { StateHandler };
@@ -94,6 +95,30 @@ export class Recomposer<
     >([...this.opts, withPropsOnChange<IP, ActualOuterProps>(shouldMapOrKeys, propsMapper)]);
   }
 
+  withHandlers<IH extends InnerPropsHanderMap = InnerPropsHanderMap>(
+    handlerCreators: HandleCreators<OuterProps, IH> | HandleCreatorsFactory<OuterProps, IH>,
+  ) {
+    return new Recomposer<
+      OuterProps & IH,
+      InnerProps,
+      InnerState,
+      IH,
+      InnerStateUpdaterMap,
+      ActualOuterProps
+    >([...this.opts, withHandlers<OuterProps, IH>(handlerCreators)]);
+  }
+
+  defaultProps<IP extends object = InnerProps>(props: IP) {
+    return new Recomposer<
+      IP,
+      IP,
+      InnerState,
+      PropsHandlerMap<IP>,
+      InnerStateUpdaterMap,
+      ActualOuterProps
+    >([...this.opts, defaultProps<IP>(props)]);
+  }
+
   withState<TState, TStateName extends string, TStateUpdaterName extends string>(
     stateName: TStateName,
     stateUpdaterName: TStateUpdaterName,
@@ -115,19 +140,6 @@ export class Recomposer<
         initialState,
       ),
     ]);
-  }
-
-  withHandlers<IH extends InnerPropsHanderMap = InnerPropsHanderMap>(
-    handlerCreators: HandleCreators<OuterProps, IH> | HandleCreatorsFactory<OuterProps, IH>,
-  ) {
-    return new Recomposer<
-      OuterProps & IH,
-      InnerProps,
-      InnerState,
-      IH,
-      InnerStateUpdaterMap,
-      ActualOuterProps
-    >([...this.opts, withHandlers<OuterProps, IH>(handlerCreators)]);
   }
 
   withStateHandlers<
