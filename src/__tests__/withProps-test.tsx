@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { Recomposer } from '../Recomposer';
+import { Recomposer } from '../';
 
 const div = props => null;
 

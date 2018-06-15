@@ -170,5 +170,3 @@ export class Recomposer<
     >([...this.opts, pure]);
   }
 }
-
-export default Recomposer;

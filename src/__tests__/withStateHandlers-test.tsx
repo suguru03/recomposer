@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { mount } from 'enzyme';
 
-import { Recomposer, StateUpdaterMap } from '../Recomposer';
+import { Recomposer, StateUpdaterMap } from '../';
 
 /**
  * @see https://github.com/acdlite/recompose/blob/master/src/packages/recompose/__tests__/withStateHandlers-test.js

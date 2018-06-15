@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import * as sinon from 'sinon';
 
-import { Recomposer } from '../Recomposer';
+import { Recomposer } from '../';
 
 /**
  * @see https://github.com/acdlite/recompose/blob/master/src/packages/recompose/__tests__/mapProps-test.js
