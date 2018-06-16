@@ -4,8 +4,10 @@ import {
   mapProps,
   withProps,
   withPropsOnChange,
-  withState,
   withHandlers,
+  defaultProps,
+  renameProp,
+  withState,
   withStateHandlers,
   onlyUpdateForKeys,
   pure,
@@ -16,11 +18,14 @@ import {
   StateUpdaters,
   HandleCreators,
   HandleCreatorsFactory,
-  defaultProps,
 } from 'recompose';
 
 export { StateHandler };
 
+export type Omit<T, K extends keyof T> = Pick<
+  T,
+  ({ [P in keyof T]: P } & { [P in K]: never } & { [x: string]: never })[keyof T]
+>;
 export type StateUpdater<TState> = (state: TState) => TState;
 export type StateUpdaterMap<InnerState, UpdaterKey extends string> = Pick<
   StateHandlerMap<InnerState>,
@@ -117,6 +122,19 @@ export class Recomposer<
       InnerStateUpdaterMap,
       ActualOuterProps
     >([...this.opts, defaultProps<IP>(props)]);
+  }
+
+  renameProp<OldName extends Extract<keyof OuterProps, string>, NewName extends string>(
+    oldName: OldName,
+    newName: NewName,
+  ) {
+    return new Recomposer<
+      Omit<OuterProps, OldName> & Record<NewName, OuterProps[OldName]>,
+      InnerState,
+      PropsHandlerMap<Omit<OuterProps, OldName> & Record<NewName, OuterProps[OldName]>>,
+      InnerStateUpdaterMap,
+      ActualOuterProps
+    >([...this.opts, renameProp(oldName, newName)]);
   }
 
   withState<TState, TStateName extends string, TStateUpdaterName extends string>(
