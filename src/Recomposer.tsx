@@ -32,127 +32,90 @@ export type StateUpdaterMap<InnerState, UpdaterKey extends string> = Pick<
   UpdaterKey
 >;
 
-export type PropsHandler<OuterProps> = (props: OuterProps) => Function;
-export type PropsHandlerFactory<OuterProps, HandlerFactoryKey extends string = string> = (
-  props: OuterProps,
-) => Record<HandlerFactoryKey, PropsHandler<OuterProps>>;
-export type PropsHandlerMap<OuterProps, HandlerKey extends string = string> = Record<
-  HandlerKey,
-  PropsHandler<OuterProps> | PropsHandlerFactory<OuterProps>
->;
+export type PropsHandler = (...args: any[]) => any;
+export type PropsHandlerMap<HandlerKey extends string = string> = Record<HandlerKey, PropsHandler>;
 
 export class Recomposer<
   OuterProps extends object = {},
   InnerProps extends object = OuterProps,
-  InnerState extends object = {},
-  InnerPropsHanderMap extends PropsHandlerMap<InnerProps> = {},
-  InnerStateUpdaterMap extends StateHandlerMap<InnerState> = {},
-  ActualOuterProps extends object = OuterProps,
-  ActualInnerProps extends object = InnerProps &
-    InnerState &
-    InnerPropsHanderMap &
-    InnerStateUpdaterMap
+  InnerState extends object = {}
 > {
   private opts: Function[];
   constructor(opts: Function[] = []) {
     this.opts = opts;
   }
 
-  enhance(Component: ComponentType<ActualInnerProps>): ComponentClass<ActualOuterProps> {
-    return compose<ActualInnerProps, ActualOuterProps>(...this.opts)(Component);
+  enhance(Component: ComponentType<InnerProps & InnerState>): ComponentClass<OuterProps> {
+    return compose<InnerProps & InnerState, OuterProps>(...this.opts)(Component);
   }
 
-  mapProps<IP extends object = InnerProps>(propsMapper: mapper<OuterProps, IP>) {
-    return new Recomposer<
-      OuterProps,
-      IP,
-      InnerState,
-      PropsHandlerMap<IP>,
-      InnerStateUpdaterMap,
-      ActualOuterProps
-    >([...this.opts, mapProps<IP, OuterProps>(propsMapper)]);
+  mapProps<NextProps extends object = InnerProps>(propsMapper: mapper<InnerProps, NextProps>) {
+    return new Recomposer<OuterProps, NextProps, InnerState>([
+      ...this.opts,
+      mapProps<NextProps, InnerProps>(propsMapper),
+    ]);
   }
 
-  withProps<IP extends object = InnerProps>(propsMapper: IP | mapper<OuterProps, IP>) {
-    return new Recomposer<
-      IP,
-      IP,
-      InnerState,
-      PropsHandlerMap<IP>,
-      InnerStateUpdaterMap,
-      ActualOuterProps
-    >([...this.opts, withProps<IP, OuterProps>(propsMapper)]);
-  }
-
-  withPropsOnChange<IP extends object = InnerProps>(
-    shouldMapOrKeys:
-      | Array<Extract<keyof ActualOuterProps, string>>
-      | predicateDiff<ActualOuterProps>,
-    propsMapper: mapper<ActualOuterProps, IP>,
+  withProps<NextProps extends object = InnerProps>(
+    propsMapper: NextProps | mapper<InnerProps, NextProps>,
   ) {
-    return new Recomposer<
-      IP,
-      IP,
-      InnerState,
-      PropsHandlerMap<IP>,
-      InnerStateUpdaterMap,
-      ActualOuterProps
-    >([...this.opts, withPropsOnChange<IP, ActualOuterProps>(shouldMapOrKeys, propsMapper)]);
+    return new Recomposer<OuterProps, NextProps, InnerState>([
+      ...this.opts,
+      withProps<NextProps, InnerProps>(propsMapper),
+    ]);
   }
 
-  withHandlers<IH extends InnerPropsHanderMap = InnerPropsHanderMap>(
-    handlerCreators: HandleCreators<OuterProps, IH> | HandleCreatorsFactory<OuterProps, IH>,
+  withPropsOnChange<NextProps extends object = InnerProps>(
+    shouldMapOrKeys: Array<Extract<keyof InnerProps, string>> | predicateDiff<InnerProps>,
+    propsMapper: mapper<InnerProps, NextProps>,
   ) {
-    return new Recomposer<
-      OuterProps & IH,
-      InnerProps,
-      InnerState,
-      IH,
-      InnerStateUpdaterMap,
-      ActualOuterProps
-    >([...this.opts, withHandlers<OuterProps, IH>(handlerCreators)]);
+    return new Recomposer<OuterProps, NextProps, InnerState>([
+      ...this.opts,
+      withPropsOnChange<NextProps, InnerProps>(shouldMapOrKeys, propsMapper),
+    ]);
   }
 
-  defaultProps<IP extends object = InnerProps>(props: IP) {
-    return new Recomposer<
-      IP,
-      IP,
-      InnerState,
-      PropsHandlerMap<IP>,
-      InnerStateUpdaterMap,
-      ActualOuterProps
-    >([...this.opts, defaultProps<IP>(props)]);
+  withHandlers<HandlerKey extends string = string>(
+    handlerCreators:
+      | HandleCreators<InnerProps, PropsHandlerMap<HandlerKey>>
+      | HandleCreatorsFactory<InnerProps, PropsHandlerMap<HandlerKey>>,
+  ) {
+    return new Recomposer<OuterProps, InnerProps & PropsHandlerMap<HandlerKey>, InnerState>([
+      ...this.opts,
+      withHandlers<InnerProps, PropsHandlerMap<HandlerKey>>(handlerCreators),
+    ]);
   }
 
-  renameProp<OldName extends Extract<keyof OuterProps, string>, NewName extends string>(
+  defaultProps<NextProps extends object = InnerProps>(props: NextProps) {
+    return new Recomposer<OuterProps, NextProps, InnerState>([
+      ...this.opts,
+      defaultProps<NextProps>(props),
+    ]);
+  }
+
+  renameProp<OldName extends Extract<keyof InnerProps, string>, NewName extends string>(
     oldName: OldName,
     newName: NewName,
   ) {
     return new Recomposer<
-      Omit<OuterProps, OldName> & Record<NewName, OuterProps[OldName]>,
-      InnerState,
-      PropsHandlerMap<Omit<OuterProps, OldName> & Record<NewName, OuterProps[OldName]>>,
-      InnerStateUpdaterMap,
-      ActualOuterProps
+      OuterProps,
+      Omit<InnerProps, OldName> & Record<NewName, InnerProps[OldName]>,
+      InnerState
     >([...this.opts, renameProp(oldName, newName)]);
   }
 
   withState<TState, TStateName extends string, TStateUpdaterName extends string>(
     stateName: TStateName,
     stateUpdaterName: TStateUpdaterName,
-    initialState: TState | mapper<OuterProps, TState>,
+    initialState: TState | mapper<InnerProps, TState>,
   ) {
     return new Recomposer<
-      OuterProps & Record<TStateName, TState> & Record<TStateUpdaterName, StateUpdater<TState>>,
-      InnerProps,
-      InnerState & Record<TStateName, TState>,
-      InnerPropsHanderMap,
-      StateHandlerMap<InnerState & Record<TStateName, TState>> &
-        Record<TStateUpdaterName, StateUpdater<TState>>,
-      ActualOuterProps
+      OuterProps,
+      InnerProps & Record<TStateName, TState> & Record<TStateUpdaterName, StateUpdater<TState>>,
+      InnerState & Record<TStateName, TState>
     >([
       ...this.opts,
-      withState<OuterProps, TState, TStateName, TStateUpdaterName>(
+      withState<InnerProps, TState, TStateName, TStateUpdaterName>(
         stateName,
         stateUpdaterName,
         initialState,
@@ -161,42 +124,31 @@ export class Recomposer<
   }
 
   withStateHandlers<
-    IS extends InnerState = InnerState,
-    ISU extends StateHandlerMap<IS> &
-      StateUpdaterMap<InnerState, Extract<keyof InnerStateUpdaterMap, string>> = StateUpdaterMap<
-      IS,
-      Extract<keyof InnerStateUpdaterMap, string>
-    >
-  >(createProps: IS | mapper<OuterProps, IS>, stateUpdaters: StateUpdaters<OuterProps, IS, ISU>) {
-    return new Recomposer<
-      OuterProps & IS & ISU,
-      InnerProps,
-      IS,
-      InnerPropsHanderMap,
-      ISU,
-      ActualOuterProps
-    >([...this.opts, withStateHandlers<IS, ISU, OuterProps>(createProps, stateUpdaters)]);
+    NextState extends InnerState = InnerState,
+    NextStatehandlerMap extends StateHandlerMap<NextState> = StateHandlerMap<NextState>
+  >(
+    createProps: NextState | mapper<InnerProps, NextState>,
+    stateUpdaters: StateUpdaters<InnerProps, NextState, NextStatehandlerMap>,
+  ) {
+    return new Recomposer<OuterProps, InnerProps, NextState>([
+      ...this.opts,
+      withStateHandlers<NextState, NextStatehandlerMap, InnerProps>(createProps, stateUpdaters),
+    ]);
   }
 
-  onlyUpdateForKeys(keys: Array<keyof ActualInnerProps>) {
-    return new Recomposer<
-      OuterProps,
-      InnerProps,
-      InnerState,
-      InnerPropsHanderMap,
-      InnerStateUpdaterMap,
-      ActualOuterProps
-    >([...this.opts, onlyUpdateForKeys(keys)]);
+  onlyUpdateForKeys<
+    Keys extends Extract<Array<keyof InnerProps & InnerState>, string> = Extract<
+      Array<keyof InnerProps & InnerState>,
+      string
+    >
+  >(keys: Keys) {
+    return new Recomposer<OuterProps, InnerProps, InnerState>([
+      ...this.opts,
+      onlyUpdateForKeys<Keys>(keys),
+    ]);
   }
 
   pure() {
-    return new Recomposer<
-      OuterProps,
-      InnerProps,
-      InnerState,
-      InnerPropsHanderMap,
-      InnerStateUpdaterMap,
-      ActualOuterProps
-    >([...this.opts, pure]);
+    return new Recomposer<OuterProps, InnerProps, InnerState>([...this.opts, pure]);
   }
 }

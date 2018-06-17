@@ -9,18 +9,14 @@ import { Recomposer } from '../';
  */
 test('withHandlers passes handlers to base component', () => {
   let submittedFormValue;
-  const enhanceForm = new Recomposer()
-    // TODO: can not resolve types automatically
-    .withState('value', 'updateValue', '')
-    .withHandlers({
-      onChange: props => event => {
-        props.updateValue(event.target.value);
-      },
-      onSubmit: props => () => {
-        submittedFormValue = props.value;
-      },
-    });
-
+  const enhanceForm = new Recomposer().withState('value', 'updateValue', '').withHandlers({
+    onChange: props => event => {
+      props.updateValue(event.target.value);
+    },
+    onSubmit: props => () => {
+      submittedFormValue = props.value;
+    },
+  });
   const Form = enhanceForm.enhance(({ value, onChange, onSubmit }) => (
     <form onSubmit={onSubmit}>
       <label>
