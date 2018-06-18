@@ -26,7 +26,7 @@ test('withStateHandlers should persist events passed as argument', () => {
     }),
   };
   const InputComponent = new Recomposer()
-    .withStateHandlers<InnerState, InnerStateUpdaterMap>(initState, stateUpdaterMap)
+    .withStateHandlers(initState, stateUpdaterMap)
     .enhance(Component);
 
   const wrapper = mount(<InputComponent />);
