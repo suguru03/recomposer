@@ -123,16 +123,24 @@ export class Recomposer<
     ]);
   }
 
-  withStateHandlers<
-    NextState extends InnerState = InnerState,
-    NextStatehandlerMap extends StateHandlerMap<NextState> = StateHandlerMap<NextState>
-  >(
+  withStateHandlers<NextState extends InnerState = InnerState, HandlerKey extends string = string>(
     createProps: NextState | mapper<InnerProps, NextState>,
-    stateUpdaters: StateUpdaters<InnerProps, NextState, NextStatehandlerMap>,
+    stateUpdaters: StateUpdaters<
+      InnerProps,
+      NextState,
+      Pick<StateHandlerMap<NextState>, HandlerKey>
+    >,
   ) {
-    return new Recomposer<OuterProps, InnerProps, NextState>([
+    return new Recomposer<
+      OuterProps,
+      InnerProps & NextState & Pick<StateHandlerMap<NextState>, HandlerKey>,
+      NextState
+    >([
       ...this.opts,
-      withStateHandlers<NextState, NextStatehandlerMap, InnerProps>(createProps, stateUpdaters),
+      withStateHandlers<NextState, Pick<StateHandlerMap<NextState>, HandlerKey>, InnerProps>(
+        createProps,
+        stateUpdaters,
+      ),
     ]);
   }
 
