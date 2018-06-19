@@ -7,6 +7,7 @@ import {
   withHandlers,
   defaultProps,
   renameProp,
+  flattenProp,
   withState,
   withStateHandlers,
   onlyUpdateForKeys,
@@ -46,7 +47,7 @@ export class Recomposer<
   }
 
   enhance(Component: ComponentType<InnerProps & InnerState>): ComponentClass<OuterProps> {
-    return compose<InnerProps & InnerState, OuterProps>(...this.opts)(Component);
+    return compose<InnerProps, OuterProps>(...this.opts)(Component);
   }
 
   mapProps<NextProps extends object = InnerProps>(propsMapper: mapper<InnerProps, NextProps>) {
@@ -102,6 +103,14 @@ export class Recomposer<
       Omit<InnerProps, OldName> & Record<NewName, InnerProps[OldName]>,
       InnerState
     >([...this.opts, renameProp(oldName, newName)]);
+  }
+
+  flattenProp<PropName extends Extract<keyof InnerProps, string>>(propName: PropName) {
+    return new Recomposer<
+      OuterProps,
+      Omit<InnerProps, PropName> & InnerProps[PropName],
+      InnerState
+    >([...this.opts, flattenProp(propName)]);
   }
 
   withState<TState, TStateName extends string, TStateUpdaterName extends string>(
