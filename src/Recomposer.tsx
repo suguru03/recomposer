@@ -11,6 +11,7 @@ import {
   withState,
   withStateHandlers,
   withReducer,
+  branch,
   onlyUpdateForKeys,
   pure,
   mapper,
@@ -22,6 +23,9 @@ import {
   HandleCreatorsFactory,
   reducer as Reducer,
   reducerProps,
+  predicate,
+  ComponentEnhancer,
+  InferableComponentEnhancer,
 } from 'recompose';
 
 export { StateHandler };
@@ -30,7 +34,8 @@ export type Omit<T, K extends keyof T> = Pick<
   T,
   ({ [P in keyof T]: P } & { [P in K]: never } & { [x: string]: never })[keyof T]
 >;
-export type StateUpdater<TState> = (state: TState) => TState;
+export type Handler<T> = (value: T) => T;
+export type StateUpdater<TState> = Handler<TState | Handler<TState>>;
 export type StateUpdaterMap<InnerState, UpdaterKey extends string> = Pick<
   StateHandlerMap<InnerState>,
   UpdaterKey
@@ -178,6 +183,27 @@ export class Recomposer<
         reducer,
         initialState,
       ),
+    ]);
+  }
+
+  branch<NextProps extends object>(
+    test: predicate<InnerProps>,
+    trueEnhancer:
+      | ComponentEnhancer<InnerProps, NextProps>
+      | InferableComponentEnhancer<NextProps>
+      | Recomposer<any, NextProps>,
+    falseEnhancer?:
+      | ComponentEnhancer<InnerProps, NextProps>
+      | InferableComponentEnhancer<NextProps>
+      | Recomposer<any, NextProps>,
+  ) {
+    const compatibleTrueEnhancer =
+      trueEnhancer instanceof Recomposer ? compose(...trueEnhancer.opts) : trueEnhancer;
+    const compatibleFalseEnhancer =
+      falseEnhancer instanceof Recomposer ? compose(...falseEnhancer.opts) : falseEnhancer;
+    return new Recomposer<OuterProps, InnerProps & NextProps, InnerState>([
+      ...this.opts,
+      branch<InnerProps>(test, compatibleTrueEnhancer, compatibleFalseEnhancer),
     ]);
   }
 
