@@ -154,14 +154,11 @@ export class Recomposer<
   }
 
   onlyUpdateForKeys<
-    Keys extends Extract<Array<keyof InnerProps & InnerState>, string> = Extract<
-      Array<keyof InnerProps & InnerState>,
-      string
-    >
+    Keys extends Array<Extract<keyof InnerProps, string>> = Array<Extract<keyof InnerProps, string>>
   >(keys: Keys) {
     return new Recomposer<OuterProps, InnerProps, InnerState>([
       ...this.opts,
-      onlyUpdateForKeys<Keys>(keys),
+      onlyUpdateForKeys<InnerProps>(keys),
     ]);
   }
 
