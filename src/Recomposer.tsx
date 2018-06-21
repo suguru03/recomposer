@@ -34,7 +34,7 @@ export type StateUpdaterMap<InnerState, UpdaterKey extends string> = Pick<
 >;
 
 export type PropsHandler = (...args: any[]) => any;
-export type PropsHandlerMap<HandlerKey extends string = string> = Record<HandlerKey, PropsHandler>;
+export type PropsHandlerMap<HandlerKey extends string> = Record<HandlerKey, PropsHandler>;
 
 export class Recomposer<
   OuterProps extends object = {},
@@ -50,23 +50,21 @@ export class Recomposer<
     return compose<InnerProps, OuterProps>(...this.opts)(Component);
   }
 
-  mapProps<NextProps extends object = InnerProps>(propsMapper: mapper<InnerProps, NextProps>) {
+  mapProps<NextProps extends object>(propsMapper: mapper<InnerProps, NextProps>) {
     return new Recomposer<OuterProps, NextProps, InnerState>([
       ...this.opts,
       mapProps<NextProps, InnerProps>(propsMapper),
     ]);
   }
 
-  withProps<NextProps extends object = InnerProps>(
-    propsMapper: NextProps | mapper<InnerProps, NextProps>,
-  ) {
+  withProps<NextProps extends object>(propsMapper: NextProps | mapper<InnerProps, NextProps>) {
     return new Recomposer<OuterProps, NextProps, InnerState>([
       ...this.opts,
       withProps<NextProps, InnerProps>(propsMapper),
     ]);
   }
 
-  withPropsOnChange<NextProps extends object = InnerProps>(
+  withPropsOnChange<NextProps extends object>(
     shouldMapOrKeys: Array<Extract<keyof InnerProps, string>> | predicateDiff<InnerProps>,
     propsMapper: mapper<InnerProps, NextProps>,
   ) {
@@ -76,7 +74,7 @@ export class Recomposer<
     ]);
   }
 
-  withHandlers<HandlerKey extends string = string>(
+  withHandlers<HandlerKey extends string>(
     handlerCreators:
       | HandleCreators<InnerProps, PropsHandlerMap<HandlerKey>>
       | HandleCreatorsFactory<InnerProps, PropsHandlerMap<HandlerKey>>,
@@ -87,7 +85,7 @@ export class Recomposer<
     ]);
   }
 
-  defaultProps<NextProps extends object = InnerProps>(props: NextProps) {
+  defaultProps<NextProps extends object>(props: NextProps) {
     return new Recomposer<OuterProps, NextProps, InnerState>([
       ...this.opts,
       defaultProps<NextProps>(props),
@@ -132,7 +130,7 @@ export class Recomposer<
     ]);
   }
 
-  withStateHandlers<NextState extends InnerState = InnerState, HandlerKey extends string = string>(
+  withStateHandlers<NextState extends InnerState, HandlerKey extends string>(
     createProps: NextState | mapper<InnerProps, NextState>,
     stateUpdaters: StateUpdaters<
       InnerProps,
