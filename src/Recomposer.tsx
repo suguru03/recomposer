@@ -10,6 +10,7 @@ import {
   flattenProp,
   withState,
   withStateHandlers,
+  withReducer,
   onlyUpdateForKeys,
   pure,
   mapper,
@@ -19,6 +20,8 @@ import {
   StateUpdaters,
   HandleCreators,
   HandleCreatorsFactory,
+  reducer as Reducer,
+  reducerProps,
 } from 'recompose';
 
 export { StateHandler };
@@ -149,6 +152,32 @@ export class Recomposer<
         Record<HandlerKey, StateHandler<InnerState & NextState>>,
         InnerProps
       >(createProps, stateUpdaters),
+    ]);
+  }
+
+  withReducer<
+    TState extends object,
+    TAction extends object,
+    TStateName extends string,
+    TDispatchName extends string
+  >(
+    stateName: TStateName,
+    dispatchName: TDispatchName,
+    reducer: Reducer<TState, TAction>,
+    initialState: TState | mapper<InnerProps, TState>,
+  ) {
+    return new Recomposer<
+      OuterProps,
+      InnerProps & reducerProps<TState, TAction, TStateName, TDispatchName>,
+      InnerState & TState
+    >([
+      ...this.opts,
+      withReducer<InnerProps, TState, TAction, TStateName, TDispatchName>(
+        stateName,
+        dispatchName,
+        reducer,
+        initialState,
+      ),
     ]);
   }
 
