@@ -7,8 +7,9 @@
   "author": "Suguru Motegi <suguru.motegi@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "rm -rf build && tsc -p tsconfig.build.json",
+    "build": "rm -rf build && tsc -p tsconfig.build.json && npm run prettier",
     "test": "jest",
+    "prettier": "prettier --write ./**/*.{ts,tsx}",
     "precommit": "lint-staged"
   },
   "peerDependencies": {
