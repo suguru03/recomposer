@@ -4,7 +4,7 @@
 
 The library enhances Recompose when using TypeScript.
 
-The library's goal is 
+The library's goal is
 
 - reducing unnecessary type definition
 - defining types automatically
@@ -16,7 +16,7 @@ The library's goal is
 
 <img alt="recomposer" src="https://user-images.githubusercontent.com/8013633/41826976-e7e65f3e-77e1-11e8-8b62-223297059d1f.png" width=400>
 
-## Usage 
+## Usage
 
 ```
 npm install recompose recomposer --save
@@ -24,3 +24,25 @@ npm install recompose recomposer --save
 
 The library has recompose as a peer dependency, you need to install both libraries.
 
+## API
+
+It is still working in progress.. welcome PR! 😊
+
+The recompose reference is [here!](https://github.com/acdlite/recompose/blob/master/docs/API.md)
+
+### Higher-order components
+- mapProps()
+- withProps()
+- withPropsOnChange()
+- withHandlers()
+- defaultProps()
+- renameProp()
+- renameProps()
+- flattenProp()
+- withState()
+- withStateHandlers()
+- withReducer()
+- branch()
+- renderComponent()
+- pure()
+- onlyUpdateForKeys()
