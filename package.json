@@ -1,6 +1,6 @@
 {
   "name": "recomposer",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "repository": "git@github.com:suguru03/recomposer.git",
