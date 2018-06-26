@@ -12,8 +12,9 @@ import {
   withStateHandlers,
   withReducer,
   branch,
-  onlyUpdateForKeys,
   pure,
+  onlyUpdateForKeys,
+  lifecycle,
   mapper,
   predicateDiff,
   StateHandler,
@@ -25,6 +26,7 @@ import {
   reducerProps,
   predicate,
   ComponentEnhancer,
+  ReactLifeCycleFunctions,
   InferableComponentEnhancer,
 } from 'recompose';
 
@@ -207,6 +209,10 @@ export class Recomposer<
     ]);
   }
 
+  pure() {
+    return new Recomposer<OuterProps, InnerProps, InnerState>([...this.opts, pure]);
+  }
+
   onlyUpdateForKeys<
     Keys extends Array<Extract<keyof InnerProps, string>> = Array<Extract<keyof InnerProps, string>>
   >(keys: Keys) {
@@ -216,8 +222,13 @@ export class Recomposer<
     ]);
   }
 
-  pure() {
-    return new Recomposer<OuterProps, InnerProps, InnerState>([...this.opts, pure]);
+  lifecycle<NextProps extends InnerProps, NextState extends InnerState, TInstance = {}>(
+    spec: ReactLifeCycleFunctions<NextProps, NextState, TInstance> & TInstance,
+  ) {
+    return new Recomposer<OuterProps, NextProps, NextState>([
+      ...this.opts,
+      lifecycle<NextProps, NextState, TInstance>(spec),
+    ]);
   }
 
   // TODO:
