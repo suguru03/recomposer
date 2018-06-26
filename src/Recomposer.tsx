@@ -219,4 +219,11 @@ export class Recomposer<
   pure() {
     return new Recomposer<OuterProps, InnerProps, InnerState>([...this.opts, pure]);
   }
+
+  // TODO:
+  compose<NextProps extends object>(
+    enhancer: (component: React.ComponentType<NextProps>) => React.ComponentType<any>,
+  ) {
+    return new Recomposer<OuterProps, InnerProps & NextProps, InnerState>([...this.opts, enhancer]);
+  }
 }
